@@ -36,7 +36,7 @@ public interface Path extends PathKernel {
          * {@code point} and the compare {@code point}.
          *
          * @param compare
-         *            The point to calculate a distance to.
+         *            The point to calculate the euclidean distance between.
          * @return the euclidean distance between the two points.
          * @ensures distance is a double that represents the compare point's
          *          position relative to this point's position.
@@ -68,7 +68,7 @@ public interface Path extends PathKernel {
          * single point as the starting point, choosing the layout with the
          * smallest total path distance.
          */
-        NEAREST_NEIGHBOR_AGGRIGATE,
+        NEAREST_NEIGHBOR_AGGREGATE,
         /**
          * Uses the nearest neighbor algorithm, but however, checks both ends of
          * the path to see which out of both points has the next shortest
@@ -80,7 +80,7 @@ public interface Path extends PathKernel {
          * for each connection, and it starts with every point in the path and
          * chooses the path with the overall shortest total distance.
          */
-        NEAREST_NEIGHBOR_BOTH_ENDS_AGGRIGATE
+        NEAREST_NEIGHBOR_BOTH_ENDS_AGGREGATE
     }
 
     /**
@@ -97,12 +97,24 @@ public interface Path extends PathKernel {
     void optimizeDistances(OptimizationMethod type);
 
     /**
+     * Reports the euclidean distances of each point with each other, summed up,
+     * assuming that the last point is connected with the first point.
+     *
+     * @return The combined distances between all points within this, including
+     *         the first and last points together.
+     * @requires #this contains more than one point.
+     * @ensures for all points within this, n = |this|, <totalDistanceConnected>
+     *          = {Point1.distance(Point2) + ... + Pointn.distance(Point1)}
+     */
+    double totalDistanceConnected();
+
+    /**
      * Reports the euclidean distances of each point with each other, summed up.
      *
      * @return The combined distances between all points within this.
      * @requires #this contains more than one point.
      * @ensures for all points within this, n = |this|, <totalDistance> =
-     *          {Point1.distance(Point2) + ... + Pointn.distance(Point1)}
+     *          {Point1.distance(Point2) + ... + Pointn-1.distance(Pointn)}
      */
     double totalDistance();
 }

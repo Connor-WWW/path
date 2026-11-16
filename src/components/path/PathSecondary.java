@@ -51,18 +51,15 @@ public abstract class PathSecondary implements Path {
 
         @Override
         public double distance(Point compareTo) {
-            // Cast given point to our type of point.
+            // Cast given point to our type of point to access direct coordinates.
+            // Other components do this as well.
             SimplePoint comparePoint = (SimplePoint) compareTo;
-            // Grab starting coordinates.
             int xFirst = this.xCoordinate;
             int yFirst = this.yCoordinate;
-            // Grab ending coordinates.
             int xSecond = comparePoint.xCoordinate;
             int ySecond = comparePoint.yCoordinate;
-            // Find those differences
             int xDiff = Math.abs(xFirst - xSecond);
             int yDiff = Math.abs(yFirst - ySecond);
-            // Square and add these.
             int cSquared = xDiff * xDiff + yDiff * yDiff;
             // Casting an int to a double shouldn't ever have an issue since it
             // involves just adding a decimal point, and we're going from a
@@ -88,10 +85,9 @@ public abstract class PathSecondary implements Path {
     private static int indexOfSmallestDouble(Sequence<Double> s) {
         // Note: We can't use the iterator, because then we won't have index numbers
         int length = s.length();
-        assert length > 0 : "Violation of: |s| > 0";
+        assert s.length() > 0 : "Violation of: |s| > 0";
         int index = 0;
         Double compareTo = s.entry(0);
-        // For every entry in s,
         for (int i = 1; i < length; i++) {
             Double current = s.entry(i);
             if (current < compareTo) {
@@ -121,7 +117,7 @@ public abstract class PathSecondary implements Path {
     private static void distancesToPoint(Point target, Path candidates,
             Sequence<Double> distances) {
         int length = candidates.length();
-        assert length > 0 : "Violation of: |s| > 0";
+        assert candidates.length() > 0 : "Violation of: |candidates| > 0";
         // Makes sure that distances doesn't have any trailing data.
         distances.clear();
         for (int i = 0; i < length; i++) {
@@ -150,9 +146,8 @@ public abstract class PathSecondary implements Path {
         // If there's only 2 or less points,
         // the path is already sorted to optimize distance.
         int length = p.length();
-        assert length > 2 : "Violation of: |s| > 2";
+        assert p.length() > 2 : "Violation of: |p| > 2";
         if (length > 2) {
-            // Create a temporary path of all non-connected points.
             Path unvisited = p.newInstance();
             unvisited.transferFrom(p);
             // Create a random object for pulling a random point as the starter.
@@ -161,21 +156,15 @@ public abstract class PathSecondary implements Path {
             // Modify startingIndex to be positive and in range of our path.
             startingIndex = Math.abs(startingIndex);
             startingIndex = startingIndex % length;
-            // Grab this starting point.
             Point starter = unvisited.remove(startingIndex);
-            // add starter back to the path.
             p.add(0, starter.x(), starter.y());
-            // Repeat until all points have been connected.
             while (unvisited.length() > 0) {
-                // Create distance sequence.
                 Sequence<Double> distances = new Sequence1L<>();
-                // Calculate the distances from starter.
                 distancesToPoint(starter, unvisited, distances);
-                // Find the smallest distance.
                 int smallest = indexOfSmallestDouble(distances);
-                // Remove this from unvisited and add it to p.
-                Point candidate = unvisited.remove(smallest);
-                p.add(p.length(), candidate.x(), candidate.y());
+                // Recycling starter to be the next point in the chain.
+                starter = unvisited.remove(smallest);
+                p.add(p.length(), starter.x(), starter.y());
             }
         }
     };
@@ -201,28 +190,21 @@ public abstract class PathSecondary implements Path {
         // If there's only 2 or less points,
         // the path is already sorted to optimize distance.
         int length = p.length();
-        assert length > 2 : "Violation of: |s| > 2";
-        // Check that indexOfStart is within p
+        assert p.length() > 2 : "Violation of: |p| > 2";
         assert 0 <= indexOfStart
                 && indexOfStart < length : "Violation of: 0 <= indexOfStart < length";
         if (length > 2) {
-            // Create a temporary path of all non-connected points.
             Path unvisited = p.newInstance();
             unvisited.transferFrom(p);
-            // Grab this starting point and add it back to p.
             Point starter = unvisited.remove(indexOfStart);
             p.add(0, starter.x(), starter.y());
-            // Repeat until all points have been connected.
             while (unvisited.length() > 0) {
-                // Create distance sequence.
                 Sequence<Double> distances = new Sequence1L<>();
-                // Calculate the distances from starter.
                 distancesToPoint(starter, unvisited, distances);
-                // Find the smallest distance.
                 int smallest = indexOfSmallestDouble(distances);
-                // Remove this from unvisited and add it to p.
-                Point candidate = unvisited.remove(smallest);
-                p.add(p.length(), candidate.x(), candidate.y());
+                // Recycling starter to be the next point in the chain.
+                starter = unvisited.remove(smallest);
+                p.add(p.length(), starter.x(), starter.y());
             }
         }
     };
@@ -241,13 +223,12 @@ public abstract class PathSecondary implements Path {
      *          connects the nearest neighbors together, optimized with the best
      *          starting node.
      */
-    private static void nearestNeighborAggrigate(Path p) {
+    private static void nearestNeighborAggregate(Path p) {
         // If there's only 2 or less points,
         // the path is already sorted to optimize distance.
         int length = p.length();
-        assert length > 2 : "Violation of: |s| > 2";
+        assert p.length() > 2 : "Violation of: |p| > 2";
         if (length > 2) {
-            // Duplicate the path to have index references to points.
             Path copy = p.newInstance();
             copy.copyFrom(p);
             // Store all point's NN path distance in a sequence
@@ -259,9 +240,7 @@ public abstract class PathSecondary implements Path {
                 double distance = p.totalDistance();
                 allDistances.add(i, distance);
             }
-            // Choose the path with the smallest distance.
             int smallest = indexOfSmallestDouble(allDistances);
-            // Retreive this smallest path
             p.copyFrom(copy);
             nearestNeighbor(p, smallest);
         }
@@ -286,9 +265,8 @@ public abstract class PathSecondary implements Path {
         // If there's only 2 or less points,
         // the path is already sorted to optimize distance.
         int length = p.length();
-        assert length > 2 : "Violation of: |s| > 2";
+        assert p.length() > 2 : "Violation of: |p| > 2";
         if (length > 2) {
-            // Create a temporary path of all non-connected points.
             Path unvisited = p.newInstance();
             unvisited.transferFrom(p);
             // Create a random object for pulling a random point as the starter.
@@ -297,42 +275,29 @@ public abstract class PathSecondary implements Path {
             // Modify startingIndex to be positive and in range of our path.
             startingIndex = Math.abs(startingIndex);
             startingIndex = startingIndex % length;
-            // Grab this starting point.
             Point starter = unvisited.remove(startingIndex);
-            // Add starter back to path.
             p.add(0, starter.x(), starter.y());
             // Both endpoints initially refer to the same point.
             Point starterFront = starter;
             Point starterBack = starter;
-            // Create distance sequence for each end.
             Sequence<Double> distancesFront = new Sequence1L<>();
             Sequence<Double> distancesBack = new Sequence1L<>();
-            // Repeat until all points have been connected.
             while (unvisited.length() > 0) {
-                // Calculate the distances from starterFront and starterBack.
                 distancesToPoint(starterFront, unvisited, distancesFront);
                 distancesToPoint(starterBack, unvisited, distancesBack);
-
-                // Grab the next smallest from each
                 int smallestFront = indexOfSmallestDouble(distancesFront);
                 int smallestBack = indexOfSmallestDouble(distancesBack);
-                // Grab distances and compare which end is better.
                 double bestFrontDistance = distancesFront.remove(smallestFront);
                 double bestBackDistance = distancesBack.remove(smallestBack);
-                // Whichever is closer, connect that point.
                 if (bestFrontDistance <= bestBackDistance) {
                     Point candidate = unvisited.remove(smallestFront);
                     // index is at p.length to add it to the front of the path.
                     p.add(p.length(), candidate.x(), candidate.y());
-
-                    // Update the front endpoint
                     starterFront = candidate;
                 } else {
                     Point candidate = unvisited.remove(smallestBack);
                     // index is at 0 to add it to the back of the path.
                     p.add(0, candidate.x(), candidate.y());
-
-                    // Update the back endpoint
                     starterBack = candidate;
                 }
             }
@@ -360,47 +325,33 @@ public abstract class PathSecondary implements Path {
         // If there's only 2 or less points,
         // the path is already sorted to optimize distance.
         int length = p.length();
-        assert length > 2 : "Violation of: |s| > 2";
+        assert p.length() > 2 : "Violation of: |ps| > 2";
         if (length > 2) {
-            // Create a temporary path of all non-connected points.
             Path unvisited = p.newInstance();
             unvisited.transferFrom(p);
-            // Grab this starting point.
             Point starter = unvisited.remove(indexOfStart);
-            // Add starter back to path.
             p.add(0, starter.x(), starter.y());
             // Both endpoints initially refer to the same point.
             Point starterFront = starter;
             Point starterBack = starter;
-            // Create distance sequence for each end.
             Sequence<Double> distancesFront = new Sequence1L<>();
             Sequence<Double> distancesBack = new Sequence1L<>();
-            // Repeat until all points have been connected.
             while (unvisited.length() > 0) {
-                // Calculate the distances from starterFront and starterBack.
                 distancesToPoint(starterFront, unvisited, distancesFront);
                 distancesToPoint(starterBack, unvisited, distancesBack);
-
-                // Grab the next smallest from each
                 int smallestFront = indexOfSmallestDouble(distancesFront);
                 int smallestBack = indexOfSmallestDouble(distancesBack);
-                // Grab distances and compare which end is better.
                 double bestFrontDistance = distancesFront.remove(smallestFront);
                 double bestBackDistance = distancesBack.remove(smallestBack);
-                // Whichever is closer, connect that point.
                 if (bestFrontDistance <= bestBackDistance) {
                     Point candidate = unvisited.remove(smallestFront);
                     // index is at p.length to add it to the front of the path.
                     p.add(p.length(), candidate.x(), candidate.y());
-
-                    // Update the front endpoint
                     starterFront = candidate;
                 } else {
                     Point candidate = unvisited.remove(smallestBack);
                     // index is at 0 to add it to the back of the path.
                     p.add(0, candidate.x(), candidate.y());
-
-                    // Update the back endpoint
                     starterBack = candidate;
                 }
             }
@@ -421,11 +372,11 @@ public abstract class PathSecondary implements Path {
      *          connects the nearest neighbors together from both ends,
      *          optimized with the best starting node.
      */
-    private static void nearestNeighborBothEndsAggrigate(Path p) {
+    private static void nearestNeighborBothEndsAggregate(Path p) {
         // If there's only 2 or less points,
         // the path is already sorted to optimize distance.
         int length = p.length();
-        assert length > 2 : "Violation of: |s| > 2";
+        assert p.length() > 2 : "Violation of: |p| > 2";
         if (length > 2) {
             // Duplicate the path to have index references to points.
             Path copy = p.newInstance();
@@ -439,9 +390,7 @@ public abstract class PathSecondary implements Path {
                 double distance = p.totalDistance();
                 allDistances.add(i, distance);
             }
-            // Choose the path with the smallest distance.
             int smallest = indexOfSmallestDouble(allDistances);
-            // Retreive this smallest path
             p.copyFrom(copy);
             nearestNeighbor(p, smallest);
         }
@@ -460,34 +409,37 @@ public abstract class PathSecondary implements Path {
     public boolean equals(Object compareTo) {
         int length = this.length();
         boolean match = false;
-        // First: check if object is a path
-        if (compareTo instanceof Path) {
-            Path comparePath = (Path) compareTo;
-            // Second: compare if memory address are equal,
-            // easy way to disqualify a match.
-            match = this == comparePath;
-            if (!match) {
-                // Third: compare if lengths are equal. Easy way to disqualify a match.
-                match = length == comparePath.length();
-                // Fourth: compare every point's x and y coordinates.
-                if (match) {
-                    Iterator<Point> it1 = this.iterator();
-                    Iterator<Point> it2 = comparePath.iterator();
-                    while (it1.hasNext() && match) {
-                        Point localPoint = it1.next();
-                        Point compareToPoint = it2.next();
-                        int localX = localPoint.x();
-                        int localY = localPoint.y();
-                        int compareToX = compareToPoint.x();
-                        int compareToY = compareToPoint.y();
-                        boolean matchX = localX == compareToX;
-                        boolean matchY = localY == compareToY;
-                        match = matchX && matchY;
+        // First: check if object is not null
+        if (compareTo != null) {
+            // Second: check if object is a path
+            if (compareTo instanceof Path) {
+                Path comparePath = (Path) compareTo;
+                // Third: compare if memory address are equal,
+                // easy way to disqualify a match.
+                match = this == comparePath;
+                if (!match) {
+                    // Fourth: compare if lengths are equal.
+                    // Easy way to disqualify a match.
+                    match = length == comparePath.length();
+                    if (match) {
+                        // Fifth: compare every point's x and y coordinates.
+                        Iterator<Point> it1 = this.iterator();
+                        Iterator<Point> it2 = comparePath.iterator();
+                        while (it1.hasNext() && match) {
+                            Point localPoint = it1.next();
+                            Point compareToPoint = it2.next();
+                            int localX = localPoint.x();
+                            int localY = localPoint.y();
+                            int compareToX = compareToPoint.x();
+                            int compareToY = compareToPoint.y();
+                            boolean matchX = localX == compareToX;
+                            boolean matchY = localY == compareToY;
+                            match = matchX && matchY;
+                        }
                     }
                 }
             }
         }
-
         return match;
     }
 
@@ -563,24 +515,49 @@ public abstract class PathSecondary implements Path {
      */
     @Override
     public void optimizeDistances(OptimizationMethod type) {
-        switch (type) {
-            case NEAREST_NEIGHBOR: {
-                nearestNeighbor(this);
-            }
-            case NEAREST_NEIGHBOR_AGGRIGATE: {
-                nearestNeighborAggrigate(this);
-            }
-            case NEAREST_NEIGHBOR_BOTH_ENDS: {
-                nearestNeighborBothEnds(this);
-            }
-            case NEAREST_NEIGHBOR_BOTH_ENDS_AGGRIGATE: {
-                nearestNeighborBothEndsAggrigate(this);
-            }
-            default: {
-                // This shouldn't happen, the client is required to provide an enum.
+        // if length <= 2, then distance is already optimal.
+        if (this.length() > 2) {
+            switch (type) {
+                case NEAREST_NEIGHBOR: {
+                    nearestNeighbor(this);
+                }
+                case NEAREST_NEIGHBOR_AGGREGATE: {
+                    nearestNeighborAggregate(this);
+                }
+                case NEAREST_NEIGHBOR_BOTH_ENDS: {
+                    nearestNeighborBothEnds(this);
+                }
+                case NEAREST_NEIGHBOR_BOTH_ENDS_AGGREGATE: {
+                    nearestNeighborBothEndsAggregate(this);
+                }
+                default: {
+                    // This shouldn't happen, the client is required to provide an enum.
+                }
             }
         }
     }
+
+    /**
+     * (non-Javadoc).
+     *
+     * @see components.path.Path#totalDistanceConnected()
+     */
+    @Override
+    public double totalDistanceConnected() {
+        assert this.length() > 1 : "Violation of: |this| > 1";
+        Iterator<Point> it = this.iterator();
+        Point first = it.next();
+        Point next = first;
+        double distance = 0.0;
+        while (it.hasNext()) {
+            Point prev = next;
+            next = it.next();
+            distance += prev.distance(next);
+        }
+        // Add on the distance between the last point and first point.
+        distance += next.distance(first);
+        return distance;
+    };
 
     /**
      * (non-Javadoc).
@@ -594,14 +571,11 @@ public abstract class PathSecondary implements Path {
         Point first = it.next();
         Point next = first;
         double distance = 0.0;
-        // Add all distances between all points.
         while (it.hasNext()) {
             Point prev = next;
             next = it.next();
             distance += prev.distance(next);
         }
-        // Add on the distance between the last point and first point.
-        distance += next.distance(first);
         return distance;
     };
 }

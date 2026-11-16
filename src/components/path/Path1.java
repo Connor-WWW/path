@@ -10,10 +10,9 @@ import components.sequence.Sequence1L;
  * {@code Path} represented as a {@link components.sequence components.sequence}
  * with implementations of primary methods.
  *
- * @convention
  * @correspondence this = [value of $this.rep]
  */
-public class Path1L extends PathSecondary {
+public class Path1 extends PathSecondary {
     /*
      * Private members.
      */
@@ -41,7 +40,7 @@ public class Path1L extends PathSecondary {
     /**
      * No-argument constructor.
      */
-    public Path1L() {
+    public Path1() {
         this.createNewRep();
     }
 
@@ -68,13 +67,14 @@ public class Path1L extends PathSecondary {
     public final void transferFrom(Path source) {
         assert source != null : "Violation of: source is not null";
         assert this != null : "Violation of: this is not null";
-        assert source instanceof Path1L : "Violation of: source is of dynamic type Path1L";
+        assert source instanceof Path1 : "Violation of: source is of dynamic type Path1L";
         /*
          * The below cast cannot fail since the assert above would have stopped
          * execution in that case.
          */
-        Path1L localSource = (Path1L) source;
+        Path1 localSource = (Path1) source;
         this.rep = localSource.rep;
+        this.length = localSource.length;
         localSource.createNewRep();
     }
 
@@ -141,7 +141,7 @@ public class Path1L extends PathSecondary {
          * No-argument constructor.
          */
         private Path1LIterator() {
-            this.iterator = Path1L.this.rep.iterator();
+            this.iterator = Path1.this.rep.iterator();
         }
 
         @Override
