@@ -520,18 +520,23 @@ public abstract class PathSecondary implements Path {
             switch (type) {
                 case NEAREST_NEIGHBOR: {
                     nearestNeighbor(this);
+                    break;
                 }
                 case NEAREST_NEIGHBOR_AGGREGATE: {
                     nearestNeighborAggregate(this);
+                    break;
                 }
                 case NEAREST_NEIGHBOR_BOTH_ENDS: {
                     nearestNeighborBothEnds(this);
+                    break;
                 }
                 case NEAREST_NEIGHBOR_BOTH_ENDS_AGGREGATE: {
                     nearestNeighborBothEndsAggregate(this);
+                    break;
                 }
                 default: {
                     // This shouldn't happen, the client is required to provide an enum.
+                    break;
                 }
             }
         }
