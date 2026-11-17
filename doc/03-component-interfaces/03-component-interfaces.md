@@ -96,7 +96,7 @@ do good work.
 
 Below is further rationale/explanation for the rubric items above:
 
-1. Because these assignments bui0ld on each other, it's important
+1. Because these assignments build on each other, it's important
    to acknowledge the growth and development of your work. Therefore, you must
    show what has been changed following the proof-of-concept as it pertains
    to the interface design.
