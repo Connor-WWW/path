@@ -325,7 +325,7 @@ public abstract class PathSecondary implements Path {
         // If there's only 2 or less points,
         // the path is already sorted to optimize distance.
         int length = p.length();
-        assert p.length() > 2 : "Violation of: |ps| > 2";
+        assert p.length() > 2 : "Violation of: |p| > 2";
         if (length > 2) {
             Path unvisited = p.newInstance();
             unvisited.transferFrom(p);
